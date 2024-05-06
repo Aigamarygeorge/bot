@@ -100,16 +100,12 @@ async def user_status(interaction: discord.Interaction, user: discord.User):
 @buddy.tree.command(name='select-role', description='description')
 async def select_role(interaction: discord.Interaction):
     roles = [
-        discord.SelectOption(label="Moderator", value="Moderator"),
-        discord.SelectOption(label="Guest", value="Guest"),
-        discord.SelectOption(label="Developer", value="Developer")
+        discord.SelectOption(label="Moderator", value="moderator"),
+        discord.SelectOption(label="Guest", value="guest"),
+        discord.SelectOption(label="Developer", value="developer")
     ]
     select_menu = discord.ui.Select(
         placeholder="Choose a role",
-        options=roles
-    )
-    select_menu = discord.ui.Select(
-        placeholder="Choose a role...",
         options=roles
     )
 
@@ -117,34 +113,19 @@ async def select_role(interaction: discord.Interaction):
         selected_role = interaction.data["values"][0]
         discord_id = interaction.user.id
 
-        try:
-            cursor.execute(
-                "REPLACE INTO user_role (discord_id, role) VALUES (%s, %s)",
-                (discord_id, selected_role)
-            )
-            db.commit()
+        cursor.execute(
+            "INSERT INTO user_role (discord_id, role) VALUES (%s, %s)",
+            (discord_id, selected_role)
+        )
+        db.commit()
 
-            guild = interaction.guild
-            role = discord.utils.get(guild.roles, name=selected_role)
-            if role:
-                await interaction.user.add_roles(role)
-                await interaction.response.send_message(f"You have been given the role: {selected_role}")
-            else:
-                await interaction.response.send_message(f"Role {selected_role} not found in the server.")
-
-        except mysql.connector.Error as db_err:
-            print(f"MySQL error: {db_err}")
-            await interaction.response.send_message(
-                "An error occurred while updating your role. Please try again later.")
-
-        except discord.HTTPException as discord_err:
-            print(f"Discord API error: {discord_err}")
-            await interaction.response.send_message(
-                "An error occurred while granting you the role. Please try again later.")
-
-        except Exception as err:
-            print(f"An unexpected error occurred: {err}")
-            await interaction.response.send_message("An unexpected error occurred. Please try again later.")
+        guild = interaction.guild
+        role = discord.utils.get(guild.roles, name=selected_role)
+        if role:
+            await interaction.user.add_roles(role)
+            await interaction.response.send_message(f"You have been given the role: {selected_role}")
+        else:
+            await interaction.response.send_message(f"Role {selected_role} not found in the server.")
 
     select_menu.callback = select_callback
 
