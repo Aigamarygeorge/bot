@@ -5,7 +5,7 @@ import mysql.connector
 
 db_config = {
     'user': decouple.config("DB_USER"),
-    'password': decouple.config("DB_PASSWORD"),
+    'password': decouple.config("DB_PASSWORD"), 
     'host': decouple.config("DB_HOST"),
     'port': decouple.config("DB_PORT"),
     'database': decouple.config("DB_NAME")
